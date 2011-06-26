@@ -1,3 +1,3 @@
-require './hello'
+require './flowchart'
 
 run Sinatra::Application
