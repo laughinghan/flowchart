@@ -5,5 +5,10 @@ require 'erubis'
 set :views, File.dirname(__FILE__)
 
 get '/' do
-  erubis :flowchart
+  erb :flowchart
+end
+
+get '/dev' do
+  @dev = true
+  erb :flowchart
 end

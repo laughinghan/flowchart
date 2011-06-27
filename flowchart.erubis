@@ -1,1 +1,121 @@
-Hello World.erubis
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Painless Flowcharts</title>
+
+<style type="text/css">
+body {
+  width: 800px;
+  margin: 0 auto;
+  font-family: Verdana, sans-serif;
+}
+h1 {
+  font-size: 2em;
+  margin: .2em;
+  float: left;
+}
+#menubar {
+  margin: 1em;
+  float: left;
+}
+#sidebar {
+  clear: left;
+  float: left;
+  width: 158px;
+  height: 478px;
+  border: 1px solid gray;
+}
+#sidebar p {
+  margin: 0;
+  padding: .8em 1em;
+  cursor: pointer;
+}
+#sidebar #diamond {
+  padding: .4em;
+}
+#sidebar .selected {
+  background: #ADF;
+}
+#paper {
+  float: left;
+  height: 480px;
+  width: 640px;
+  background: #FFD;
+}
+.spotlight svg * {
+  opacity: .4;
+}
+.spotlight .spotlight, .spotlight .spotlight * {
+  opacity: .8;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Painless Flowcharts <small>v0.0&alpha;</small></h1>
+
+<p id="menubar">
+  <button disabled>New</button>
+  <button disabled>Save</button>
+</p>
+
+<div id="sidebar">
+<p id="rect" class="selected"></p>
+<p id="oval"></p>
+<p id="diamond"></p>
+</div>
+
+<div id="paper"></div>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery<%= ".min" unless @dev %>.js"></script>
+<script src="raphael<%= "-min" unless @dev %>.js"></script>
+<script type="text/javascript">
+//by David Allen (github.com/voronoff davidrallen1@gmail.com) and Han Wei (github.com/laughinghan laughinghan@gmail.com)
+
+<% if @dev %>
+window.onerror = function() {
+  $('html').css('background', 'red');
+};
+<% end %>
+
+//the Raphael canvas on which all the shapes are drawn
+var paper = Raphael('paper', 640, 480), paperDiv = $('#paper');
+paper.text(200, 150, 'hello world').attr('font-size', 40);
+
+//Sidebar Shapes:
+var rectPaper = Raphael('rect', 120, 60);
+rectPaper.rect(.5, .5, 119, 59, 9.5);
+rectPaper.text(59.5, 29.5, 'Rect').attr('font-size', 20);
+
+var ovalPaper = Raphael('oval', 120, 60);
+ovalPaper.ellipse(60, 30, 59, 29);
+ovalPaper.text(59.5, 29.5, 'Oval').attr('font-size', 20);
+
+var diamondPaper = Raphael('diamond', 140, 80);
+diamondPaper.path('M 70,1 l -70,39 l 70,39 l 70,-39 l -70,-39');
+diamondPaper.text(70, 39.5, 'Diamond').attr('font-size', 20);
+
+//selecting a sidebar shape
+var currentShape = $('#sidebar .selected');
+$('#sidebar p').click(function() {
+  if (currentShape)
+    currentShape.removeClass('selected');
+  currentShape = $(this).addClass('selected');
+});
+
+//behavior of each shape tool
+$('#rect').click(function() {
+  paperDiv.click(function(e) {
+    var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+    paper.rect(x - 59.5, y - 29.5, 119, 59, 9.5);
+    paper.text(x, y, 'Rect').attr('font-size', 20);
+  });
+});
+
+$('#sidebar .selected').click();
+</script>
+
+</body>
+</html>
