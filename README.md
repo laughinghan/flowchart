@@ -2,9 +2,9 @@ A painless flowchart webapp
 
 http://ietherpad.com/flowchart
 
-A highly biased and grossly unfair history:
+### A highly biased and grossly unfair history:
 
-### So I wanted make a simple CFG. How hard could it be to find a good online tool?
+So I wanted make a simple CFG. How hard could it be to find a good online tool?
 
 - flowchart.com requires you to sign up. If you click demo, the iframe contains a _copy_ of flowchart.com asking you to sign up.
 - lucidchart.com looks like someone said "You know what the best part of Microsoft Office is? FEATURITIS!!!! Let's make a web-app based around that!"
