@@ -107,10 +107,27 @@ $('#sidebar p').click(function() {
 
 //behavior of each shape tool
 $('#rect').click(function() {
+  paperDiv.unbind('click');
   paperDiv.click(function(e) {
     var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
     paper.rect(x - 59.5, y - 29.5, 119, 59, 9.5);
     paper.text(x, y, 'Rect').attr('font-size', 20);
+  });
+});
+$('#oval').click(function() {
+  paperDiv.unbind('click');
+  paperDiv.click(function(e) {
+    var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+    paper.ellipse(x, y, 59, 29);
+    paper.text(x, y, 'Oval').attr('font-size', 20);
+  });
+});
+$('#diamond').click(function() {
+  paperDiv.unbind('click');
+  paperDiv.click(function(e) {
+    var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+    paper.path("M" + x + "," + (y-40) + " l -70,39 l 70,39 l 70,-39 l -70,-39");
+    paper.text(x, y, 'Diamond').attr('font-size', 20);
   });
 });
 
