@@ -104,6 +104,13 @@ $('#sidebar p').click(function() {
   currentShape = $(this).addClass('selected');
 });
 
+// ghost image that follows the cursor
+var ghost;
+function removeGhost() {
+	!ghost || ghost.remove();
+}
+paperDiv.mouseleave(removeGhost);
+
 //behavior of each shape tool
 //tool - jQuery object for tool selector
 //makeShape(x,y) - callback that draws the shape and returns it
@@ -117,11 +124,11 @@ function defineShapeBehavior(tool,makeShape,defaultText) {
 		    var text = paper.text(x, y, defaultText).attr('font-size', 20);
 			addHandlersForElement(shape);
 		});
-		var oldGhost;
+		paperDiv.unbind('mousemove');
 		paperDiv.mousemove(function(e) {
 			var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
-			!oldGhost || oldGhost.remove();
-			oldGhost = makeShape(x,y).attr({'opacity':.5})
+			removeGhost();
+			ghost = makeShape(x,y).attr({'opacity':.5})
 		})
 	};
 	tool.click(onToolSelect);
