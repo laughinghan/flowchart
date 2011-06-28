@@ -118,6 +118,12 @@ function defineShapeBehavior(tool,makeShape,defaultText) {
 		    var text = paper.text(x, y, defaultText).attr('font-size', 20);
 			addHandlersForElement(shape);
 		});
+		var oldGhost;
+		paperDiv.mousemove(function(e) {
+			var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			!oldGhost || oldGhost.remove();
+			oldGhost = makeShape(x,y).attr({'opacity':.5})
+		})
 	};
 	tool.click(onToolSelect);
 	function addHandlersForElement(shape) {
