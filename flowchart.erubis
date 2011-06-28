@@ -110,6 +110,7 @@ function removeGhost() {
 	!ghost || ghost.remove();
 }
 paperDiv.mouseleave(removeGhost);
+paperDiv.data('drawghost',true);
 
 //behavior of each shape tool
 //tool - jQuery object for tool selector
@@ -128,13 +129,22 @@ function defineShapeBehavior(tool,makeShape,defaultText) {
 		paperDiv.mousemove(function(e) {
 			var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			removeGhost();
-			ghost = makeShape(x,y).attr({'opacity':.5})
+			if ($(this).data('drawghost')) {
+				ghost = makeShape(x,y).attr({'opacity':.5})
+			}
 		})
 	};
 	tool.click(onToolSelect);
 	function addHandlersForElement(shape) {
-		shape.hover(function() {this.attr({'fill-opacity':.10})},
-					function() {this.attr({'fill-opacity':0})})
+		function onMouseOver() {
+			this.attr({'fill-opacity':.10});
+			paperDiv.data('drawghost',false);
+		}
+		function onMouseLeave() {
+			this.attr({'fill-opacity':0});
+			paperDiv.data('drawghost',true);
+		}
+		shape.hover(onMouseOver,onMouseLeave);
 	}
 }
 defineShapeBehavior(
