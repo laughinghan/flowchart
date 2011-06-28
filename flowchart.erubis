@@ -57,7 +57,7 @@ h1 {
 <h1>Painless Flowcharts <small>v0.0&alpha;</small></h1>
 
 <p id="menubar">
-  <button disabled>New</button>
+  <button id="new">New</button>
   <button disabled>Save</button>
 </p>
 
@@ -82,6 +82,7 @@ window.onerror = function() {
 
 //the Raphael canvas on which all the shapes are drawn
 var paper = Raphael('paper', 640, 480), paperDiv = $('#paper');
+$('#new').click(function(){paper.clear()});
 
 //Sidebar Shapes:
 var rectPaper = Raphael('rect', 120, 60);
