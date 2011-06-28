@@ -114,11 +114,16 @@ function defineShapeBehavior(tool,makeShape,defaultText) {
 	 	paperDiv.unbind('click');
 		paperDiv.click(function(e) {
 		    var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
-		    var shape = makeShape(x,y);
+		    var shape = makeShape(x,y).attr({'fill-opacity':0,fill:'#000'});
 		    var text = paper.text(x, y, defaultText).attr('font-size', 20);
+			addHandlersForElement(shape);
 		});
 	};
 	tool.click(onToolSelect);
+	function addHandlersForElement(shape) {
+		shape.hover(function() {this.attr({'fill-opacity':.10})},
+					function() {this.attr({'fill-opacity':0})})
+	}
 }
 defineShapeBehavior(
 	$('#rect'),
