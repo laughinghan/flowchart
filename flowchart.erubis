@@ -157,7 +157,7 @@ function makeNode(makeShape,edgeHookCoordinates,defaultText) {
 		var set = paper.set();
 		var shape = makeShape(x,y).attr('fill', '#DFE');
 		var hooks = makeHooks(x,y,edgeHookCoordinates);
-		var text = paper.text(x,y,defaultText);
+		var text = paper.text(x,y,defaultText).attr('font-size', 20);
 		set.push(shape,text);
 		hooks.map(function(hook){set.push(hook);})
 		return set;
@@ -170,7 +170,9 @@ function makeHooks(x,y,edgeHookCoordinates) {
 		})
 }
 function makeEdgeHook(x,y) {
-	hook = paper.ellipse(x,y,5,5);
+	hook = paper.ellipse(x,y,2,2).attr('fill','#000');
+	hook.hover(function(){this.attr({rx:5,ry:5})},
+				function(){this.attr({rx:2,ry:2})});
 	return hook;
 }
 
@@ -204,7 +206,8 @@ var diamondEdgeHooks = [[-70,0],[0,-40],[70,0],[0,40]];
 defineShapeBehavior(
 	$('#diamond'),
 	makeDiamond,
-	makeNode(makeDiamond,diamondEdgeHooks,diamond));
+	makeNode(makeDiamond,diamondEdgeHooks,'Diamond')
+	);
 
 
 $('#sidebar .selected').click();
