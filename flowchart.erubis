@@ -166,8 +166,7 @@ function drawGhostEdge(origHook) {
 		var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 		var origX = origHook.attr('cx');
 		var origY = origHook.attr('cy');
-		alert(origX);
-		ghostEdge = paper.path('M' + origX + ',' + origY + ' l ' + x + ',' + y).attr('arrow-end','classic');
+		ghostEdge = paper.path('M' + origX + ',' + origY + ' l ' + (x-origX) + ',' + (y-origY)).attr('arrow-end','classic');
 	}
 }
 
@@ -177,10 +176,13 @@ function startEdge(origHook,ghostNodeFunc) {
 	return function(e) {
 		paperDiv.unbind('mousemove');
 		paperDiv.mousemove(drawGhostEdge(origHook));
-		paperDiv.click(stopEdge(ghostNodeFunc));
+		setTimeout(function(){
+			paperDiv.click(stopEdge(ghostNodeFunc))
+			});
 	}
 }
 function stopEdge(ghostNodeFunc) {
+	alert('stopEdge called');
 	return function(e) {
 		paperDiv.unbind('mousemove');
 		paperDiv.mousemove(drawGhostNode(ghostNodeFunc));
