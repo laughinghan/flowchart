@@ -116,15 +116,15 @@ paperDiv.data('drawghost',true);
 
 //behavior of each shape tool
 //tool - jQuery object for tool selector
-//makeShape(x,y) - callback that draws the shape and returns it
+//makeShape(x,y) - callback that draws just the shape and returns it
+//makeNode(x,y) - callback that draws the node and returns it
 //defaultText - default text for the shape
-function defineShapeBehavior(tool,makeShape,defaultText) {
+function defineShapeBehavior(tool,makeShape,makeNode) {
 	var onToolSelect = function() {
 	 	paperDiv.unbind('click');
 		paperDiv.click(function(e) {
 		    var offset = paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
-		    var shape = makeShape(x,y).attr('fill', '#DFE');
-		    var text = paper.text(x, y, defaultText).attr('font-size', 20);
+		    var shape = makeNode(x,y);
 			addHandlersForElement(shape);
 		});
 		paperDiv.unbind('mousemove');
@@ -147,18 +147,64 @@ function defineShapeBehavior(tool,makeShape,defaultText) {
 		shape.hover(onMouseOver,onMouseLeave);
 	}
 }
+//Makes a function that takes x and y coordinates, draws a flowchard node,
+// and returns it.
+// makeShape(x,y): callback that draws the shape and returns it
+// edgeHookCoordinates: an array of pairs relative coordinates to draw edge hooks
+// text: string, default text for the node
+function makeNode(makeShape,edgeHookCoordinates,defaultText) {
+	return function(x,y) {
+		var set = paper.set();
+		var shape = makeShape(x,y).attr('fill', '#DFE');
+		var hooks = makeHooks(x,y,edgeHookCoordinates);
+		var text = paper.text(x,y,defaultText);
+		set.push(shape,text);
+		hooks.map(function(hook){set.push(hook);})
+		return set;
+	}
+}
+function makeHooks(x,y,edgeHookCoordinates) {
+	return edgeHookCoordinates.map(
+		function(coordinatePair) {
+			return makeEdgeHook(x+coordinatePair[0],y+coordinatePair[1]);
+		})
+}
+function makeEdgeHook(x,y) {
+	hook = paper.ellipse(x,y,5,5);
+	return hook;
+}
+
+// for making rectangles
+function makeRectangle(x,y) {
+	return paper.rect(x - 59.5, y - 29.5, 119, 59, 9.5);
+}
+var rectangleEdgeHooks = [[-59.5,0],[0,-29.5],[59.5,0],[0,29.5]];
 defineShapeBehavior(
 	$('#rect'),
-	function(x,y){ return paper.rect(x - 59.5, y - 29.5, 119, 59, 9.5);},
-	'Rect');
+	makeRectangle,
+	makeNode(makeRectangle,rectangleEdgeHooks,'Rect')
+	);
+
+//for making ovals	
+function makeOval(x,y) {
+	return paper.ellipse(x, y, 59, 29);
+}
+var ovalEdgeHooks = rectangleEdgeHooks;
 defineShapeBehavior(
 	$('#oval'),
-	function(x,y){ return paper.ellipse(x, y, 59, 29);},
-	'Oval');
+	makeOval,
+	makeNode(makeOval,ovalEdgeHooks,'Oval')
+	);
+
+//for making diamonds
+function makeDiamond(x,y) {
+	return paper.path("M" + x + "," + (y-40) + " l -70,39 l 70,39 l 70,-39 l -70,-39");
+}
+var diamondEdgeHooks = [[-70,0],[0,-40],[70,0],[0,40]];
 defineShapeBehavior(
 	$('#diamond'),
-	function(x,y){ return paper.path("M" + x + "," + (y-40) + " l -70,39 l 70,39 l 70,-39 l -70,-39"); },
-	'Diamond');
+	makeDiamond,
+	makeNode(makeDiamond,diamondEdgeHooks,diamond));
 
 
 $('#sidebar .selected').click();
