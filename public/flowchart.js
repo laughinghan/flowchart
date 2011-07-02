@@ -23,6 +23,11 @@ var Flowchart;
 		paperDiv.click(function() {
 			_this.lastClickedEdgeHook = null;
 		})
+		paperDiv.mouseenter(function(e) {
+			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			_this.setMousemove(_this.drawGhostNode(x,y));
+			_this.setClick(_this.drawRealNode());
+		})
 		paperDiv.mouseleave(function() {
 			_this.removeGhost();
 		})
@@ -59,16 +64,18 @@ var Flowchart;
 	*/
 	Flowchart.prototype.selectNodeTool = function(name) {
 		this.selectedTool = this.nodeTools[name];
-		this.setMousemove( this.drawGhostNode() );
-		this.setClick( this.drawRealNode() );
 	}
-	Flowchart.prototype.drawGhostNode = function() {
+	Flowchart.prototype.drawGhostNode = function(oX,oY) {
 		var _this = this;
+		var paper = this.paper;
 		var tool = this.selectedTool;
+		this.removeGhost();
+		this.ghost = tool.ghostFunc(paper,oX,oY);
 		return function(e) {
 			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
-			_this.removeGhost();
-			_this.ghost = tool.ghostFunc(paper,x,y);
+			var deltaX = x - oX, deltaY = y - oY;
+			oX = x; oY = y;
+			_this.ghost.translate(deltaX,deltaY);
 		}
 	}
 	Flowchart.prototype.drawRealNode = function() {
@@ -79,6 +86,7 @@ var Flowchart;
 			_this.removeGhost();
 			var newNode = new FlowchartNode(_this,x,y,
 				tool.shapeFunc,tool.edgeHookCoordinates,tool.defaultText,tool.shapeAttrs,tool.textAttrs);
+			_this.setMousemove(_this.drawGhostNode(x,y));
 		}
 	}
 	/**
@@ -112,7 +120,7 @@ var Flowchart;
 			if (_this.lastClickedEdgeHook) {
 				var newEdge = new FlowchartEdge(_this,fromHook,_this.lastClickedEdgeHook);
 			}
-			_this.setMousemove( _this.drawGhostNode() );
+			_this.setMousemove( _this.drawGhostNode(x,y) );
 			_this.setClick( _this.drawRealNode() );
 		}
 	}
@@ -220,9 +228,10 @@ var Flowchart;
 						flowchart.setClick( flowchart.drawRealEdgeFrom(_this) );
 					} );
 			},
-			function(){
+			function(e){
+				var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 				_this.attr(nonHoverAttrs) ;
-				flowchart.setMousemove( flowchart.drawGhostNode() );
+				flowchart.setMousemove( flowchart.drawGhostNode(x,y) );
 				flowchart.setClick( flowchart.drawRealNode() );
 			}
 		);
