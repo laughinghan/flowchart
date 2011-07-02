@@ -10,7 +10,7 @@ var Flowchart;
 		this.paper = paper;
 		this.paperDiv = paperDiv;
 		this.nodeTools = {};
-		this.edgeTools = {};
+		this.edgeTools = {}
 		var _this = this;
 		this.setMousemove= function (handler) {
 			paperDiv.unbind('mousemove');
@@ -26,6 +26,18 @@ var Flowchart;
 		paperDiv.mouseleave(function() {
 			_this.removeGhost();
 		})
+		this.addEdgeTool('default',
+			this.drawLineFromHookToPoint,
+			function(fromHook,toHook) {return _this.drawLineFromHookToPoint(fromHook,toHook.attr('cx'),toHook.attr('cy'))},
+			{})
+	}
+	Flowchart.prototype.drawLineFromHookToPoint = function(fromHook,x,y) {
+		var _this = this;
+		return function(e) {
+			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			_this.removeGhost();
+			_this.ghost = _this.paper.path("M")
+		}
 	}
 	/**
 	* name - string that serves as a name for the node tool
@@ -112,6 +124,9 @@ var Flowchart;
 		return {ghostFunc:ghostFunc, shapeFunc:shapeFunc, edgeHookCoordinates:edgeHookCoordinates,
 			defaultText:defaultText, shapeAttrs:shapeAttrs,textAttrs:textAttrs};
 	}
+	var EdgeTool = function(ghostFunc,edgeFunc,edgeAttrs) {
+		return {ghostFunc:ghostFunc,edgeFunc:edgeFunc,edgeAttrs:edgeAttrs};
+	}
 	
 	/**
 	* owner - Flowchart that owns the node
@@ -187,7 +202,6 @@ var Flowchart;
 		var flowchart = owner.owner, paper = flowchart.paper;
 		if (!EdgeHook.prototype) {
 			var oX = owner.centerX, oY = owner.centerY;
-			console.log(oX); console.log(oY);console.log(relativeX);console.log(relativeY);
 			EdgeHook.prototype = paper.ellipse(oX + relativeX, oY + relativeY, 2, 2);
 			return new EdgeHook(owner, relativeX, relativeY, nonHoverAttrs, hoverAttrs);
 		}
