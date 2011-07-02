@@ -20,8 +20,8 @@ var Flowchart;
 			paperDiv.unbind('click');
 			paperDiv.click(handler);
 		}
-		paper.click(function() {
-			paper.lastClickedEdgeHook = null;
+		paperDiv.click(function() {
+			_this.lastClickedEdgeHook = null;
 		})
 		paperDiv.mouseleave(function() {
 			_this.removeGhost();
@@ -97,8 +97,8 @@ var Flowchart;
 		return function(e) {
 			var offset = this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			_this.removeGhost();
-			if (paper.lastClickedEdgeHook) {
-				var newEdge = new FlowchartEdge(_this,fromHook,paper.lastClickedEdgeHook);
+			if (_this.lastClickedEdgeHook) {
+				var newEdge = new FlowchartEdge(_this,fromHook,_this.lastClickedEdgeHook);
 			}
 			_this.setMousemove( _this.drawGhostNode() );
 			_this.setClick( _this.drawRealNode() );
@@ -208,7 +208,7 @@ var Flowchart;
 		);
 		this.click(
 			function() {
-				paper.lastClickedEdgeHook = _this;
+				flowchart.lastClickedEdgeHook = _this;
 			})
 	}
 })();
