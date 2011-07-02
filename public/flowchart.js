@@ -70,7 +70,7 @@ var Flowchart;
 		var paper = this.paper;
 		var tool = this.selectedTool;
 		this.removeGhost();
-		this.ghost = tool.ghostFunc(paper,oX,oY);
+		this.ghost = tool.ghostFunc(paper,oX,oY).toBack();
 		return function(e) {
 			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			var deltaX = x - oX, deltaY = y - oY;
