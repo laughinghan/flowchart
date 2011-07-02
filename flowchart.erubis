@@ -117,8 +117,11 @@ diamondPaper.path('M 70,1 l -70,39 l 70,39 l 70,-39 l -70,-39');
 diamondPaper.text(70, 39.5, 'Diamond').attr('font-size', 20);
 
 //selecting a sidebar shape
-$('#sidebar p').click(function() {
+var selected = $();
+$('#sidebar').delegate('p', 'click', function() {
   flowchart.selectNodeTool($(this).attr('id'));
+  selected.removeClass('selected');
+  selected = $(this).addClass('selected');
 });
 
 // for making rectangles
