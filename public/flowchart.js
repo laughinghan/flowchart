@@ -217,29 +217,24 @@ var Flowchart;
 		if (nonHoverAttrs)
 			this.attr(nonHoverAttrs);
 		this.owner = owner;
-		var _this = this;
-		this.hover(
-			function(){
-				_this.attr(hoverAttrs);
-				flowchart.setMousemove( function(e) {} );
-				flowchart.setClick(
-					function(e) {
-						flowchart.setMousemove( flowchart.drawGhostEdgeFrom(_this) );
-						flowchart.setClick( flowchart.drawRealEdgeFrom(_this) );
-					} );
-			},
-			function(e){
-				var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
-				_this.attr(nonHoverAttrs) ;
-				flowchart.setMousemove( flowchart.drawGhostNode(x,y) );
-				flowchart.setClick( flowchart.drawRealNode() );
-			}
-		);
-		this.click(
-			function() {
-				flowchart.lastClickedEdgeHook = _this;
-			}
-		);
+		var edgeHook = this;
+		this.hover(edgeHookMouseEnter,edgeHookMouseLeave);
+		this.click( function(){ flowchart.lastClickedEdgeHook = _this;} );
 	};
+	function edgeHookMouseEnter (_) {
+		edgeHook.attr(hoverAttrs);
+		flowchart.setMousemove( function(e) {} );
+		flowchart.setClick(
+			function(e) {
+				flowchart.setMousemove( flowchart.drawGhostEdgeFrom(edgeHook) );
+				flowchart.setClick( flowchart.drawRealEdgeFrom(edgeHook) );
+			} );
+	}
+	function edgeHookMouseLeave(e) {
+		var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+		edgeHook.attr(nonHoverAttrs) ;
+		flowchart.setMousemove( flowchart.drawGhostNode(x,y) );
+		flowchart.setClick( flowchart.drawRealNode() );
+	}
 	EdgeHook.prototype = undefined;
 })();
