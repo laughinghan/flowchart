@@ -72,6 +72,7 @@ h1 {
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery<%= ".min" unless @dev %>.js"></script>
 <script src="raphael<%= "-min" unless @dev %>.js"></script>
+<script src="flowchart.js">
 <script type="text/javascript">
 //by David Allen (github.com/voronoff davidrallen1@gmail.com) and Han Wei (github.com/laughinghan laughinghan@gmail.com)
 
