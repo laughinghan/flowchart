@@ -29,8 +29,8 @@ var Flowchart;
 	}
 	/**
 	* name - string that serves as a name for the node tool
-	* ghostFunc(x,y) - function that draws a ghost node at x and y
-	* shapeFunc(x,y) - function that draws the node's shape at x and y
+	* ghostFunc(paper,x,y) - function that draws a ghost node at x and y
+	* shapeFunc(paper,x,y) - function that draws the node's shape at x and y
 	* edgeHookCoordinates - array of pairs of relative coordinates for edge hooks
 	* defaultText: default text for node
 	* shapeAttrs: object containing SVG attributes for the shape
@@ -38,7 +38,7 @@ var Flowchart;
 	*/
 	Flowchart.prototype.addNodeTool = function(name,ghostFunc,shapeFunc,edgeHookCoordinates,
 			defaultText,shapeAttrs,textAttrs) {
-		this.nodeTools[name] = new NodeTool(ghostFunc,shapeFunc,edgeHookCoordinates,defaultText,shapeAttrs,textAttrs);
+		this.nodeTools[name] = new NodeTool(this,ghostFunc,shapeFunc,edgeHookCoordinates,defaultText,shapeAttrs,textAttrs);
 		this.selectedTool || this.selectNodeTool(this.nodeTools[name]); //automatically select a node tool
 	}
 	/**
@@ -54,16 +54,16 @@ var Flowchart;
 		var _this = this;
 		var tool = this.selectedTool;
 		return function(e) {
-			var offset = this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			_this.removeGhost();
-			_this.ghost = tool.ghostFunc(x,y);
+			_this.ghost = tool.ghostFunc(paper,x,y);
 		}
 	}
 	Flowchart.prototype.drawRealNode = function() {
 		var _this = this;
 		var tool = this.selectedTool;
 		return function(e) {
-			var offset = this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			_this.removeGhost();
 			var newNode = new FlowchartNode(_this,x,y,
 				tool.shapeFunc,tool.edgeHookCoordinates,tool.defaultText,tool.shapeAttrs,tool.textAttrs);
@@ -86,7 +86,7 @@ var Flowchart;
 		var _this = this;
 		var tool = this.selectedEdgeTool;
 		return function(e) {
-			var offset = this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			_this.removeGhost();
 			_this.ghost = tool.ghostFunc(fromHook,x,y);
 		}
@@ -95,7 +95,7 @@ var Flowchart;
 		var _this = this;
 		var tool = this.selectedEdgeTool;
 		return function(e) {
-			var offset = this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			_this.removeGhost();
 			if (_this.lastClickedEdgeHook) {
 				var newEdge = new FlowchartEdge(_this,fromHook,_this.lastClickedEdgeHook);
@@ -144,7 +144,8 @@ var Flowchart;
 	* edgeHookCoordinates:
 	*/
 	FlowchartNode.prototype.makeEdgeHooks = function (edgeHookCoordinates) {
-		function makeEdgeHook(coordPair) { return new EdgeHook(this,coordPair[0],coordPair[1]); }
+		var _this = this;
+		function makeEdgeHook(coordPair) { return new EdgeHook(_this,coordPair[0],coordPair[1]); }
 		return edgeHookCoordinates.map(makeEdgeHook);
 	}
 	
@@ -184,12 +185,13 @@ var Flowchart;
 	*  hovered
 	*/
 	var EdgeHook = function (owner,relativeX,relativeY,nonHoverAttrs,hoverAttrs) {
-		var oX = owner.attr('cx'), oY = owner.attr('cy');
+		var oX = owner.shape.attr('cx'), oY = owner.shape.attr('cy');
 		this.owner = owner;
 		var flowchart = owner.owner;
-		var paper = owner.paper;
+		var paper = flowchart.paper;
 		this.prototype = paper.ellipse(oX + relativeX, oY + relativeY, 2, 2).attr(nonHoverAttrs);
 		var _this = this;
+		console.log(this);
 		this.hover(
 			function(){
 				_this.attr(hoverAttrs);
