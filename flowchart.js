@@ -11,6 +11,7 @@ var Flowchart;
 		this.paperDiv = paperDiv;
 		this.nodeTools = {};
 		this.edgeTools = {};
+		var _this = this;
 		this.setMousemove= function (handler) {
 			paperDiv.unbind('mousemove');
 			paperDiv.mousemove(handler);
@@ -21,6 +22,9 @@ var Flowchart;
 		}
 		paper.click(function() {
 			paper.lastClickedEdgeHook = null;
+		})
+		paperDiv.mouseleave(function() {
+			_this.removeGhost();
 		})
 	}
 	/**
@@ -52,7 +56,7 @@ var Flowchart;
 		return function(e) {
 			var offset = this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			_this.removeGhost();
-			tool.ghostFunc(x,y);
+			_this.ghost = tool.ghostFunc(x,y);
 		}
 	}
 	Flowchart.prototype.drawRealNode = function() {
@@ -84,7 +88,7 @@ var Flowchart;
 		return function(e) {
 			var offset = this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			_this.removeGhost();
-			tool.ghostFunc(fromHook,x,y);
+			_this.ghost = tool.ghostFunc(fromHook,x,y);
 		}
 	}
 	Flowchart.prototype.drawRealEdgeFrom = function (fromHook) {
@@ -176,7 +180,7 @@ var Flowchart;
 	* relativeY - y coordinate relative to owner
 	* nonHoverAttrs - object containing SVG attributes for the edge hook
 	*  when not hovered
-	* hoverAttrs - object containint SVG attributes for the edge hook when
+	* hoverAttrs - object containing SVG attributes for the edge hook when
 	*  hovered
 	*/
 	var EdgeHook = function (owner,relativeX,relativeY,nonHoverAttrs,hoverAttrs) {
