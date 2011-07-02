@@ -115,8 +115,8 @@ var Flowchart;
 	
 	/**
 	* owner - Flowchart that owns the node
-	* x - x coordinate relative to paper
-	* y - y coordinate relative to paper
+	* x - center x coordinate relative to paper
+	* y - center y coordinate relative to paper
 	* shapeFunc - takes arguments paper, x, y, returns a shape
 	*  drawn on the paper at (x,y)
 	* edgeHookCoordinates: array of pairs of coordinates relative
@@ -126,29 +126,27 @@ var Flowchart;
 	* textAttrs: object containing SVG attributes for the text
 	*/
 	var FlowchartNode = function (owner,x,y,shapeFunc,
-						edgeHookCoordinates,defaultText,shapeAttrs,textAttrs) {
+						edgeHookCoords,defaultText,shapeAttrs,textAttrs) {
+		if (!FlowchartNode.prototype) {
+			FlowchartNode.prototype = owner.paper.set();
+			return new FlowchartNode(owner,x,y,shapeFunc,edgeHookCoords,defaultText,shapeAttrs,textAttrs);
+		}
+		this.centerX = x;
+		this.centerY = y;
+		var _this = this;
 		//set up instance variables
 		this.owner = owner;
 		var paper = owner.paper;
-		this.prototype = paper.set();
-		this.shape = shapeFunc(paper,x,y).attr(shapeAttrs);
-		this.edgeHooks = this.makeEdgeHooks(edgeHookCoordinates);
-		this.text = paper.text(x,y,defaultText).attr(textAttrs);
+		var shape = this.shape = shapeFunc(paper,x,y).attr(shapeAttrs);
+		function makeEdgeHook(coordPair){ return new EdgeHook(_this,coordPair[0],coordPair[1]); }
+		var edgeHooks = this.edgeHooks = edgeHookCoords.map(makeEdgeHook);
+		var text = this.text = paper.text(x,y,defaultText).attr(textAttrs);
 		this.edges = [];
 		//put Raphael set together
 		this.push(shape,text);
-		var _this = this;
 		edgeHooks.map(function(hook) {_this.push(hook)});
 	}
-	/**
-	* edgeHookCoordinates:
-	*/
-	FlowchartNode.prototype.makeEdgeHooks = function (edgeHookCoordinates) {
-		var _this = this;
-		console.log(_this);
-		function makeEdgeHook(coordPair) { return new EdgeHook(_this,coordPair[0],coordPair[1],{'rx':2,'ry':2},{'rx':5,'ry':5}); }
-		return edgeHookCoordinates.map(makeEdgeHook);
-	}
+	FlowchartNode.prototype = undefined;
 	
 	/**
 	* owner - Flowchart that owns the edge
@@ -186,11 +184,17 @@ var Flowchart;
 	*  hovered
 	*/
 	var EdgeHook = function (owner,relativeX,relativeY,nonHoverAttrs,hoverAttrs) {
-		var oX = owner.shape.attr('cx'), oY = owner.shape.attr('cy');
+		var flowchart = owner.owner, paper = flowchart.paper;
+		if (!EdgeHook.prototype) {
+			var oX = owner.centerX, oY = owner.centerY;
+			console.log(oX); console.log(oY);console.log(relativeX);console.log(relativeY);
+			EdgeHook.prototype = paper.ellipse(oX + relativeX, oY + relativeY, 2, 2);
+			return new EdgeHook(owner, relativeX, relativeY, nonHoverAttrs, hoverAttrs);
+		}
+		EdgeHook.prototype = undefined;
+		if (nonHoverAttrs)
+			this.attr(nonHoverAttrs);
 		this.owner = owner;
-		var flowchart = owner.owner;
-		var paper = flowchart.paper;
-		this.prototype = paper.ellipse(oX + relativeX, oY + relativeY, 2, 2).attr(nonHoverAttrs);
 		var _this = this;
 		this.hover(
 			function(){
@@ -211,6 +215,8 @@ var Flowchart;
 		this.click(
 			function() {
 				flowchart.lastClickedEdgeHook = _this;
-			});
-	}
+			}
+		);
+	};
+	EdgeHook.prototype = undefined;
 })();
