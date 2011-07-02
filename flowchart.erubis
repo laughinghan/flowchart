@@ -43,6 +43,11 @@ h1 {
   height: 480px;
   width: 640px;
   background: #FFD;
+  position:relative;
+}
+#paper div {
+  position:absolute;
+  right:10px;
 }
 .spotlight svg * {
   opacity: .4;
@@ -68,7 +73,13 @@ h1 {
 <p id="diamond"></p>
 </div>
 
-<div id="paper"></div>
+<div id="paper">
+	<div>
+		<button id="zoom-in" disabled>+</button>
+		<button id="zoom-out" disabled>-</button>
+		<button id="drag-canvas" disabled>g</button>
+	</div>
+</div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery<%= ".min" unless @dev %>.js"></script>
 <script src="raphael<%= "-min" unless @dev %>.js"></script>

@@ -145,7 +145,8 @@ var Flowchart;
 	*/
 	FlowchartNode.prototype.makeEdgeHooks = function (edgeHookCoordinates) {
 		var _this = this;
-		function makeEdgeHook(coordPair) { return new EdgeHook(_this,coordPair[0],coordPair[1]); }
+		console.log(_this);
+		function makeEdgeHook(coordPair) { return new EdgeHook(_this,coordPair[0],coordPair[1],{'rx':2,'ry':2},{'rx':5,'ry':5}); }
 		return edgeHookCoordinates.map(makeEdgeHook);
 	}
 	
@@ -191,7 +192,6 @@ var Flowchart;
 		var paper = flowchart.paper;
 		this.prototype = paper.ellipse(oX + relativeX, oY + relativeY, 2, 2).attr(nonHoverAttrs);
 		var _this = this;
-		console.log(this);
 		this.hover(
 			function(){
 				_this.attr(hoverAttrs);
@@ -211,6 +211,6 @@ var Flowchart;
 		this.click(
 			function() {
 				flowchart.lastClickedEdgeHook = _this;
-			})
+			});
 	}
 })();
