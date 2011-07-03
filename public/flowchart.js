@@ -15,22 +15,18 @@ var Flowchart;
 		this.setMousemove= function (handler) {
 			paperDiv.unbind('mousemove');
 			paperDiv.mousemove(handler);
-		}
+		};
 		this.setClick = function(handler) {
 			paperDiv.unbind('click');
 			paperDiv.click(handler);
-		}
-		paperDiv.click(function() {
-			_this.lastClickedEdgeHook = null;
-		})
+		};
+		paperDiv.click(function() {	_this.lastClickedEdgeHook = null; });
 		paperDiv.mouseenter(function(e) {
 			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			_this.setMousemove(_this.drawGhostNode(x,y));
 			_this.setClick(_this.drawRealNode());
-		})
-		paperDiv.mouseleave(function() {
-			_this.removeGhost();
-		})
+		});
+		paperDiv.mouseleave(function() { _this.removeGhost(); });
 		this.addEdgeTool('default',
 			this.drawLineFromHookToPoint,
 			function(fromHook,toHook) {return _this.drawLineFromHookToPoint(fromHook,toHook.attr('cx'),toHook.attr('cy'))},
@@ -220,21 +216,21 @@ var Flowchart;
 		var edgeHook = this;
 		this.hover(edgeHookMouseEnter,edgeHookMouseLeave);
 		this.click( function(){ flowchart.lastClickedEdgeHook = _this;} );
+		function edgeHookMouseEnter (_) {
+			edgeHook.attr(hoverAttrs);
+			flowchart.setMousemove( function(e) {} );
+			flowchart.setClick(
+				function(e) {
+					flowchart.setMousemove( flowchart.drawGhostEdgeFrom(edgeHook) );
+					flowchart.setClick( flowchart.drawRealEdgeFrom(edgeHook) );
+				} );
+		}
+		function edgeHookMouseLeave(e) {
+			var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			edgeHook.attr(nonHoverAttrs) ;
+			flowchart.setMousemove( flowchart.drawGhostNode(x,y) );
+			flowchart.setClick( flowchart.drawRealNode() );
+		}
 	};
-	function edgeHookMouseEnter (_) {
-		edgeHook.attr(hoverAttrs);
-		flowchart.setMousemove( function(e) {} );
-		flowchart.setClick(
-			function(e) {
-				flowchart.setMousemove( flowchart.drawGhostEdgeFrom(edgeHook) );
-				flowchart.setClick( flowchart.drawRealEdgeFrom(edgeHook) );
-			} );
-	}
-	function edgeHookMouseLeave(e) {
-		var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
-		edgeHook.attr(nonHoverAttrs) ;
-		flowchart.setMousemove( flowchart.drawGhostNode(x,y) );
-		flowchart.setClick( flowchart.drawRealNode() );
-	}
 	EdgeHook.prototype = undefined;
 })();
