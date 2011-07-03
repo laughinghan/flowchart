@@ -39,7 +39,6 @@ var Flowchart;
 	function drawLineFromHookToPoint (paper,fromHook,x,y) {
 		var oX = fromHook.attr('cx'),oY = fromHook.attr('cy');
 		var deltaX = x-oX,deltaY = y - oY;
-		console.log(oX);console.log(oY);console.log(deltaX);console.log(deltaY);
 		return this.paper.path("M" + oX + ',' + oY + 'l' + deltaX + ',' + deltaY);
 	}
 	/**
@@ -114,7 +113,6 @@ var Flowchart;
 		var tool = this.selectedEdgeTool;
 		return function(e) {
 			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
-			console.log(e.target);
 			_this.removeGhost();
 			if (_this.lastClickedEdgeHook) {
 				var newEdge = new FlowchartEdge(_this,fromHook,_this.lastClickedEdgeHook);
@@ -176,10 +174,14 @@ var Flowchart;
 			owner.setClick(function(_) {})
 		}
 		function nodeMouseLeave(e) {
-			owner.removeGhost();
-			var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
-			owner.setMousemove(owner.drawGhostNode(x,y));
-			owner.setClick(owner.drawRealNode());
+			if(!_this.edgeStarted) {
+				owner.removeGhost();
+				var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+				owner.setMousemove(owner.drawGhostNode(x,y));
+				owner.setClick(owner.drawRealNode());
+			} else {
+				_this.edgeStarted = false;
+			}
 		}
 	}
 	FlowchartNode.prototype = undefined;
@@ -235,6 +237,7 @@ var Flowchart;
 			flowchart.lastClickedEdgeHook = edgeHook;
 			flowchart.setMousemove(flowchart.drawGhostEdgeFrom(edgeHook));
 			flowchart.setClick(flowchart.drawRealEdgeFrom(edgeHook));
+			edgeHook.owner.edgeStarted = true; //hack
 			} );
 		function edgeHookMouseEnter (_) {
 			edgeHook.attr(hoverAttrs);
@@ -242,10 +245,12 @@ var Flowchart;
 			flowchart.setClick( function(e) {} );
 		}
 		function edgeHookMouseLeave(e) {
-			var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
 			edgeHook.attr(nonHoverAttrs) ;
-			flowchart.setMousemove( flowchart.drawGhostNode(x,y) );
-			flowchart.setClick( flowchart.drawRealNode() );
+			if(!edgeHook.owner.edgeStarted) {
+				var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+				flowchart.setMousemove( flowchart.drawGhostNode(x,y) );
+				flowchart.setClick( flowchart.drawRealNode() );
+			}
 		}
 	};
 	EdgeHook.prototype = undefined;
