@@ -75,8 +75,8 @@ h1 {
 
 <div id="paper">
 	<div>
-		<button id="zoom-in" disabled>+</button>
-		<button id="zoom-out" disabled>-</button>
+		<button id="zoom-in">+</button>
+		<button id="zoom-out">-</button>
 		<button id="drag-canvas" disabled>g</button>
 	</div>
 </div>
@@ -95,6 +95,7 @@ window.onerror = function() {
 
 //the Raphael canvas on which all the shapes are drawn
 var paper = Raphael('paper', 640, 480), paperDiv = $('#paper');
+paper.setViewBox(0,0,640,480,true);
 var flowchart;
 refreshPaper = function() {
 	paper.clear();
@@ -102,6 +103,21 @@ refreshPaper = function() {
 }
 $('#new').click(refreshPaper);
 refreshPaper();
+
+$('zoom-in').click(function() {
+	zoom(50,50);
+})
+$('zoom-out').click(function() {
+	zoom(-50,-50);
+})
+function zoom(xZoom,yZoom) {
+	var x = paper._viewBox[0],y=paper._viewBox[1],width=paper._viewBox[2],height = paper._viewBox[3];
+	paper.setViewBox(x+xZoom,y+yZoom,width-2*xZoom,height-2*yZoom);
+}
+function translate(deltaX,deltaY) {
+	var x = paper._viewBox[0],y=paper._viewBox[1],width=paper._viewBox[2],height = paper._viewBox[3];
+	paper.setViewBox(x+deltaX,y+deltaY,width,height);
+}
 
 //Sidebar Shapes:
 var rectPaper = Raphael('rect', 120, 60);
