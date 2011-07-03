@@ -28,17 +28,14 @@ var Flowchart;
 		});
 		paperDiv.mouseleave(function() { _this.removeGhost(); });
 		this.addEdgeTool('default',
-			this.drawLineFromHookToPoint,
-			function(fromHook,toHook) {return _this.drawLineFromHookToPoint(fromHook,toHook.attr('cx'),toHook.attr('cy'))},
-			{})
+			function(fromHook,x,y){return drawLineFromHookToPoint(paper,fromHook,x,y)},
+			function(fromHook,toHook) {return drawLineFromHookToPoint(paper,fromHook,toHook.attr('cx'),toHook.attr('cy'))},
+			{stroke:'#000'})
 	}
-	Flowchart.prototype.drawLineFromHookToPoint = function(fromHook,x,y) {
-		var _this = this;
-		return function(e) {
-			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
-			_this.removeGhost();
-			_this.ghost = _this.paper.path("M")
-		}
+	function drawLineFromHookToPoint (paper,fromHook,x,y) {
+		var oX = fromHook.attr('cx'),oY = fromHook.attr('cy');
+		var deltaX = x-oX,deltaY = y - oY;
+		return this.paper.path("M" + oX + ',' + oY + 'l' + deltaX + ',' + deltaY);
 	}
 	/**
 	* name - string that serves as a name for the node tool
@@ -93,7 +90,7 @@ var Flowchart;
 	*/
 	Flowchart.prototype.addEdgeTool = function(name,ghostFunc,edgeFunc,edgeAttrs) {
 		this.edgeTools[name] = new EdgeTool(ghostFunc,edgeFunc,edgeAttrs);
-		this.selectedEdgeTool || this.selectEdgeTool(this.edgeTools[name]);
+		this.selectedEdgeTool || this.selectEdgeTool(name);
 	}
 	Flowchart.prototype.selectEdgeTool = function(name) {
 		this.selectedEdgeTool = this.edgeTools[name];
@@ -115,9 +112,10 @@ var Flowchart;
 			_this.removeGhost();
 			if (_this.lastClickedEdgeHook) {
 				var newEdge = new FlowchartEdge(_this,fromHook,_this.lastClickedEdgeHook);
+			} else {
+				_this.setMousemove( _this.drawGhostNode(x,y) );
+				_this.setClick( _this.drawRealNode() );
 			}
-			_this.setMousemove( _this.drawGhostNode(x,y) );
-			_this.setClick( _this.drawRealNode() );
 		}
 	}
 	Flowchart.prototype.removeGhost = function() {
@@ -157,7 +155,7 @@ var Flowchart;
 		this.owner = owner;
 		var paper = owner.paper;
 		var shape = this.shape = shapeFunc(paper,x,y).attr(shapeAttrs);
-		function makeEdgeHook(coordPair){ return new EdgeHook(_this,coordPair[0],coordPair[1]); }
+		function makeEdgeHook(coordPair){ return new EdgeHook(_this,coordPair[0],coordPair[1],{rx:2,ry:2,fill:'black'},{rx:5,ry:5}); }
 		var edgeHooks = this.edgeHooks = edgeHookCoords.map(makeEdgeHook);
 		var text = this.text = paper.text(x,y,defaultText).attr(textAttrs);
 		this.edges = [];
@@ -184,15 +182,14 @@ var Flowchart;
 	* owner - Flowchart that owns the edge
 	* fromHook - EdgeHook where edge starts
 	* toHook - EdgeHook where edge ends
-	* pathAttrs - object containing SVG attributes for the path
+	* edgeAttrs - object containing SVG attributes for the path
 	*/
-	var FlowchartEdge = function (owner,fromHook,toHook,pathAttrs) {
+	var FlowchartEdge = function (owner,fromHook,toHook,edgeAttrs) {
 		this.owner = owner;
 		this.fromHook = fromHook;
 		this.toHook = toHook;
-		this.pathAttrs = pathAttrs;
+		this.edgeAttrs = edgeAttrs;
 		this.updatePath();
-		owner.edges.push(this);
 	}
 	/**
 	* Updates the edge's path to coincide with the new position of its hooks.
@@ -202,7 +199,7 @@ var Flowchart;
 		var toHook = this.toHook;
 		var deltaX = toHook.attr('cx') - fromHook.attr('cx');
 		var deltaY = toHook.attr('cy') - fromHook.attr('cy');
-		this.prototype = paper.path("M" + fromHook.attr('cx') + ","
+		this.path = paper.path("M" + fromHook.attr('cx') + ","
 			+ fromHook.attr('cy') + "l" + deltaX + ',' + deltaY).attr(this.pathAttrs);
 	}
 	
@@ -228,15 +225,15 @@ var Flowchart;
 		this.owner = owner;
 		var edgeHook = this;
 		this.hover(edgeHookMouseEnter,edgeHookMouseLeave);
-		this.click( function(){ flowchart.lastClickedEdgeHook = _this;} );
+		this.click( function(){
+			flowchart.lastClickedEdgeHook = edgeHook;
+			flowchart.setMousemove(flowchart.drawGhostEdgeFrom(edgeHook));
+			flowchart.setClick(flowchart.drawRealEdgeFrom(edgeHook));
+			} );
 		function edgeHookMouseEnter (_) {
 			edgeHook.attr(hoverAttrs);
 			flowchart.setMousemove( function(e) {} );
-			flowchart.setClick(
-				function(e) {
-					flowchart.setMousemove( flowchart.drawGhostEdgeFrom(edgeHook) );
-					flowchart.setClick( flowchart.drawRealEdgeFrom(edgeHook) );
-				} );
+			flowchart.setClick( function(e) {} );
 		}
 		function edgeHookMouseLeave(e) {
 			var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
