@@ -13,12 +13,16 @@ var Flowchart;
 		this.edgeTools = {}
 		var _this = this;
 		this.setMousemove = function (handler) {
-			paperDiv.unbind('mousemove');
-			paperDiv.mousemove(handler);
+			setTimeout(function() {
+				paperDiv.unbind('mousemove');
+				paperDiv.mousemove(handler);
+			});
 		};
 		this.setClick = function(handler) {
-			paperDiv.unbind('click');
-			paperDiv.click(handler);
+			setTimeout(function() {
+				paperDiv.unbind('click');
+				paperDiv.click(handler);
+			});
 		};
 		paperDiv.click(function() {	_this.lastClickedEdgeHook = null; });
 		paperDiv.mouseenter(function(e) {
@@ -35,6 +39,7 @@ var Flowchart;
 	function drawLineFromHookToPoint (paper,fromHook,x,y) {
 		var oX = fromHook.attr('cx'),oY = fromHook.attr('cy');
 		var deltaX = x-oX,deltaY = y - oY;
+		console.log(oX);console.log(oY);console.log(deltaX);console.log(deltaY);
 		return this.paper.path("M" + oX + ',' + oY + 'l' + deltaX + ',' + deltaY);
 	}
 	/**
@@ -109,6 +114,7 @@ var Flowchart;
 		var tool = this.selectedEdgeTool;
 		return function(e) {
 			var offset = _this.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			console.log(e.target);
 			_this.removeGhost();
 			if (_this.lastClickedEdgeHook) {
 				var newEdge = new FlowchartEdge(_this,fromHook,_this.lastClickedEdgeHook);
