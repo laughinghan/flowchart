@@ -12,7 +12,7 @@ var Flowchart;
 		this.nodeTools = {};
 		this.edgeTools = {}
 		var _this = this;
-		this.setMousemove= function (handler) {
+		this.setMousemove = function (handler) {
 			paperDiv.unbind('mousemove');
 			paperDiv.mousemove(handler);
 		};
@@ -164,6 +164,19 @@ var Flowchart;
 		//put Raphael set together
 		this.push(shape,text);
 		edgeHooks.map(function(hook) {_this.push(hook)});
+		//hover
+		this.hover(nodeMouseEnter,nodeMouseLeave);
+		function nodeMouseEnter(e) {
+			owner.removeGhost();
+			owner.setMousemove(function(_) {});
+			owner.setClick(function(_) {})
+		}
+		function nodeMouseLeave(e) {
+			owner.removeGhost();
+			var offset = flowchart.paperDiv.offset(), x = e.pageX - offset.left, y = e.pageY - offset.top;
+			owner.setMousemove(owner.drawGhostNode(x,y));
+			owner.setClick(owner.drawRealNode());
+		}
 	}
 	FlowchartNode.prototype = undefined;
 	
